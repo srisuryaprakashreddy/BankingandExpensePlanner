@@ -131,15 +131,9 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="accountsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Accounts
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="accountsDropdown">
-                        <li><a class="dropdown-item" th:href="@{/accounts}">All Accounts</a></li>
-                        <li><a class="dropdown-item" th:href="@{/accounts/new}">Add Account</a></li>
-                    </ul>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/accounts}">Accounts</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/transactions}">Transactions</a>
@@ -187,8 +181,7 @@
             <div class="groww-card">
                 <h4 class="mb-3">Change Password</h4>
                 <!-- Show error if wrong password -->
-                <div th:if="${error}" class="alert alert-danger" th:text="${error}">Wrong password</div>
-                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                 <form th:action="@{/user/change-password}" method="post">
                     <div class="mb-3">
                         <label>Current Password</label>
@@ -206,8 +199,7 @@
             <div class="groww-card">
                 <h4 class="mb-3">Change PIN</h4>
                 <!-- Show error if wrong pin -->
-                <div th:if="${pinError}" class="alert alert-danger" th:text="${pinError}">Wrong current pin</div>
-                <div th:if="${pinSuccess}" class="alert alert-success" th:text="${pinSuccess}"></div>
+                <div th:if="${pinError}" class="alert alert-danger" th:text="${pinError}"></div>
                 <form th:action="@{/user/change-pin}" method="post">
                     <div class="mb-3">
                         <label>Current PIN</label>

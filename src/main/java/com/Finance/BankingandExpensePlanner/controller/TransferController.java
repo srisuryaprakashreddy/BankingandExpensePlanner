@@ -1,6 +1,5 @@
 package com.Finance.BankingandExpensePlanner.controller;
 
-
 import com.Finance.BankingandExpensePlanner.model.Account;
 import com.Finance.BankingandExpensePlanner.model.User;
 import com.Finance.BankingandExpensePlanner.service.AccountService;
@@ -12,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -112,8 +108,32 @@ public class TransferController {
 
         try {
             Account senderAccount = accountService.getAccountById(transferData.getAccountId()).orElseThrow(() -> new RuntimeException("Account not found"));
-            // PIN already validated, so pass null and skip PIN check in service
-            transferService.initiateTransfer(sender, senderAccount, transferData.getReceiverEmail(), transferData.getAmount(), null);
+            Double amount = transferData.getAmount();
+
+            // Find receiver
+            User receiver = userService.findByEmail(transferData.getReceiverEmail()).orElseThrow(() -> new RuntimeException("Receiver not found"));
+            List<Account> receiverAccounts = accountService.getAccountsByUser(receiver);
+            if (receiverAccounts.isEmpty()) {
+                throw new RuntimeException("Receiver has no account.");
+            }
+            Account receiverAccount = receiverAccounts.get(0);
+
+            // Check sender balance
+            if (senderAccount.getBalance() < amount) {
+                redirectAttributes.addFlashAttribute("error", "Insufficient balance.");
+                return "redirect:/transfer";
+            }
+
+            // Subtract from sender, add to receiver
+            senderAccount.setBalance(senderAccount.getBalance() - amount);
+            receiverAccount.setBalance(receiverAccount.getBalance() + amount);
+
+            // Save updated accounts
+            accountService.saveAccount(senderAccount);
+            accountService.saveAccount(receiverAccount);
+
+            // Record transfer and transactions
+            transferService.recordTransferTransactions(sender, senderAccount, receiver.getEmail(), amount);
 
             // Clear session attributes
             session.removeAttribute(SESSION_OTP);

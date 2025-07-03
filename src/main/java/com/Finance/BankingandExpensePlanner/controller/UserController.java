@@ -1,6 +1,5 @@
 package com.Finance.BankingandExpensePlanner.controller;
 
-
 import com.Finance.BankingandExpensePlanner.model.User;
 import com.Finance.BankingandExpensePlanner.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +35,6 @@ public class UserController {
         return "redirect:/user/profile";
     }
 
-    // --- Change Password ---
-    @GetMapping("/change-password")
-    public String changePasswordForm() {
-        return "change-password";
-    }
-
     @PostMapping("/change-password")
     public String changePassword(
             @RequestParam String currentPassword,
@@ -50,22 +43,12 @@ public class UserController {
             RedirectAttributes redirectAttributes) {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
         if (user == null || !userService.checkPassword(user, currentPassword)) {
-            redirectAttributes.addFlashAttribute("error", "Current password is incorrect.");
-            return "redirect:/user/change-password";
+            redirectAttributes.addFlashAttribute("error", "Current password entered is wrong.");
+            return "redirect:/user/profile";
         }
         userService.updatePassword(user, newPassword);
-
-        // Optionally, you can log out the user here if you want to force re-login immediately
-        // SecurityContextHolder.clearContext();
-
-        redirectAttributes.addFlashAttribute("success", "Password changed successfully. Please log in again.");
+        redirectAttributes.addFlashAttribute("successLogin", "Password changed successfully. Please log in again.");
         return "redirect:/login";
-    }
-
-    // --- Change PIN ---
-    @GetMapping("/change-pin")
-    public String changePinForm() {
-        return "change-pin";
     }
 
     @PostMapping("/change-pin")
@@ -76,15 +59,11 @@ public class UserController {
             RedirectAttributes redirectAttributes) {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
         if (user == null || !userService.checkPin(user, currentPin)) {
-            redirectAttributes.addFlashAttribute("error", "Current PIN is incorrect.");
-            return "redirect:/user/change-pin";
+            redirectAttributes.addFlashAttribute("pinError", "Current PIN entered is wrong.");
+            return "redirect:/user/profile";
         }
         userService.updatePin(user, newPin);
-
-        // Optionally, you can log out the user here if you want to force re-login immediately
-        // SecurityContextHolder.clearContext();
-
-        redirectAttributes.addFlashAttribute("success", "PIN changed successfully. Please log in again.");
+        redirectAttributes.addFlashAttribute("pinSuccessLogin", "PIN changed successfully. Please log in again.");
         return "redirect:/login";
     }
 }
